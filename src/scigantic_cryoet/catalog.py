@@ -1,4 +1,4 @@
-"""catalog.py -- the searchable index, and a live per-dataset metadata client.
+"""catalog.py: the searchable index, and a live per-dataset metadata client.
 
 The CZ CryoET Data Portal (`s3://cryoet-data-portal-public`, anonymous,
 ~370 datasets as of 2026-09) has no search of its own: a bucket whose top
@@ -10,7 +10,7 @@ dataset the snapshot might not have, or a dataset newer than the index.
 
 This package does not read tomogram pixel data. The portal already ships
 `thumbnail.gif`/`snapshot.gif` per dataset (unlike EMPIAR, which ships no
-previews at all -- see scigantic-empiar), and the official `cryoet-data-portal`
+previews at all, see scigantic-empiar), and the official `cryoet-data-portal`
 client already reads the OME-Zarr volumes well. Reinventing either here would
 just be a second, divergent copy of something that already works.
 """
@@ -35,7 +35,7 @@ ENDPOINT = f"https://{BUCKET}.s3.amazonaws.com"
 # Not live yet: this points at where the monorepo's onboarding batch job will
 # publish the built index, same rollout order scigantic-empiar and
 # scigantic-emdb followed (library ships, then the catalog lands). Until then
-# CryoetCatalog.load() 404s -- point SCIGANTIC_CRYOET_CATALOG at a local
+# CryoetCatalog.load() 404s. Point SCIGANTIC_CRYOET_CATALOG at a local
 # `cryoet_build_catalog.py --out` file to develop against real data meanwhile.
 CATALOG_URL = os.environ.get(
     "SCIGANTIC_CRYOET_CATALOG",
@@ -52,7 +52,7 @@ _S3_NS = "{http://s3.amazonaws.com/doc/2006-03-01/}"
 class CryoetClient:
     """Live per-dataset metadata, straight from the portal's own bucket.
 
-    Anonymous S3 REST, no boto3, no credentials -- the same shape as the
+    Anonymous S3 REST, no boto3, no credentials: the same shape as the
     monorepo's onboarding script. Useful for a dataset newer than whatever
     catalog snapshot is loaded, or to double-check a stale field.
     """
@@ -87,13 +87,13 @@ class CryoetClient:
 class CryoetCatalog:
     """Searchable catalog across every CryoET Data Portal dataset.
 
-    Field semantics vary by how the index was built -- see the `catalog_meta`
+    Field semantics vary by how the index was built, see the `catalog_meta`
     property before trusting a fill rate. `title`/`description`/`organism`/
     `sample_type`/`disease`/`assay`/`n_runs` etc. are COMPLETE (sourced from
     each dataset's own `dataset_metadata.json`, which every dataset has).
     `voxel_spacings`/`tomogram_size`/`reconstruction_method`/`ctf_corrected`/
     `annotation_objects` etc. describe ONE run per dataset (`sampled_run`),
-    not every run -- walking every run of every dataset is thousands of
+    not every run: walking every run of every dataset is thousands of
     listings for detail that barely varies within a dataset. A dataset with
     heterogeneous runs will be under-reported on these fields specifically.
     """
@@ -114,7 +114,7 @@ class CryoetCatalog:
             with open(self.url) as fh:
                 payload = json.load(fh)
         # Raise on an unexpected shape instead of degrading to an empty (but
-        # still queryable) catalog -- the exact failure mode EmpiarCatalog.load()
+        # still queryable) catalog, the exact failure mode EmpiarCatalog.load()
         # was fixed to stop making, after it once fell back to a bare listing
         # on any exception and kept answering queries as if nothing were wrong.
         if not isinstance(payload, dict) or "entries" not in payload:
@@ -152,7 +152,7 @@ class CryoetCatalog:
         has_annotations      require (or exclude, False) at least one
                              annotation on the sampled run.
         has_emdb/has_empiar  require (or exclude) a cross-reference.
-        ctf_corrected        True/False -- sampled-run field, see catalog_meta.
+        ctf_corrected        True/False (sampled-run field, see catalog_meta).
         sort                 "relevance" (default), "runs", or "id".
 
         Returns a DataFrame.

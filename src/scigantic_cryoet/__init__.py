@@ -1,4 +1,4 @@
-"""scigantic_cryoet -- search the CZ CryoET Data Portal from Python.
+"""scigantic_cryoet: search the CZ CryoET Data Portal from Python.
 
 >>> import scigantic_cryoet as cryoet
 >>> cat = cryoet.CryoetCatalog()

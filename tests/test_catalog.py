@@ -1,4 +1,4 @@
-"""catalog.py -- CryoetCatalog (no network)."""
+"""catalog.py: CryoetCatalog (no network)."""
 import pandas as pd
 import pytest
 
@@ -83,7 +83,7 @@ def test_load_raises_on_wrong_shape(tmp_path):
     builder (cryoet_build_catalog.py) never writes (it writes 'entries'),
     and silently fell back to an empty-but-still-queryable catalog instead
     of raising. Caught by smoke-testing against a real catalog file, not by
-    a unit test -- this test exists so it can't regress silently again."""
+    a unit test; this test exists so it can't regress silently again."""
     import json
     p = tmp_path / "catalog.json"
     p.write_text(json.dumps({"meta": {}, "datasets": [{"id": 1}]}))
@@ -93,7 +93,7 @@ def test_load_raises_on_wrong_shape(tmp_path):
 
 def test_load_http_raises_on_failure(monkeypatch):
     """A failed fetch must raise, not silently return an empty/degraded
-    catalog -- the exact failure mode scigantic-empiar's load() was fixed
+    catalog, the exact failure mode scigantic-empiar's load() was fixed
     to stop making (see its own test_catalog_load_raises_instead_of_degrading)."""
     import requests
 

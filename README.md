@@ -44,7 +44,7 @@ It does not read tomogram pixel data or reimplement OME-Zarr access. The portal 
 | voxel_spacings, reconstruction_method, annotation_objects | 98% / 98% / 92% | **one run per dataset** |
 | emdb_ids / empiar_ids present | 12% / 6.5% | cross-reference, when deposited |
 
-**Read `catalog_meta` before trusting a fill rate.** Fields drawn from `dataset_metadata.json` (title, organism, sample_type, disease, assay, cross-references, ...) are COMPLETE — every dataset has one. Fields that live one level down at the run/tomogram level (`voxel_spacings`, `reconstruction_method`, `ctf_corrected`, `annotation_objects`, ...) describe **one run**, named in `sampled_run` — walking every run of every dataset is thousands of listings for detail that barely varies within a dataset. `catalog_meta` names exactly which fields are sampled, so this can't be missed the way an earlier internal EMPIAR catalog once advertised "all ~3,000 entries" while actually holding 12.
+**Read `catalog_meta` before trusting a fill rate.** Fields drawn from `dataset_metadata.json` (title, organism, sample_type, disease, assay, cross-references, ...) are COMPLETE: every dataset has one. Fields that live one level down at the run/tomogram level (`voxel_spacings`, `reconstruction_method`, `ctf_corrected`, `annotation_objects`, ...) describe **one run**, named in `sampled_run`: walking every run of every dataset is thousands of listings for detail that barely varies within a dataset. `catalog_meta` names exactly which fields are sampled, so this can't be missed the way an earlier internal EMPIAR catalog once advertised "all ~3,000 entries" while actually holding 12.
 
 ```python
 cat = cryoet.CryoetCatalog()
@@ -55,7 +55,7 @@ cat.search(has_emdb=True, sort="runs")   # datasets cross-referenced to EMDB, mo
 cat.gallery(cat.search("spike"))         # HTML gallery, portal thumbnails
 ```
 
-The index isn't published yet — `CryoetCatalog()` with no argument points at where the monorepo's onboarding batch job will land it. Until then, point it at a local file built with the catalog script:
+The index isn't published yet. `CryoetCatalog()` with no argument points at where the monorepo's onboarding batch job will land it. Until then, point it at a local file built with the catalog script:
 
 ```python
 cat = cryoet.CryoetCatalog(url="/path/to/cryoet-catalog.json")
@@ -74,8 +74,8 @@ client.runs(10000)               # run directory names, COMPLETE (not sampled)
 
 ## Data license
 
-The portal describes its data as "publicly available" / "open access" (checked 2026-09-02, portal homepage and Terms of Use), but does not state a specific license designation (CC0, CC-BY, or otherwise) on either page. Check a dataset's own citation/attribution requirements — via `dataset_metadata.json`'s `authors`/`publications` fields, or the portal's own dataset page — before redistributing.
+The portal describes its data as "publicly available" / "open access" (checked 2026-09-02, portal homepage and Terms of Use), but does not state a specific license designation (CC0, CC-BY, or otherwise) on either page. Check a dataset's own citation/attribution requirements (via `dataset_metadata.json`'s `authors`/`publications` fields, or the portal's own dataset page) before redistributing.
 
 ## What this doesn't do (yet)
 
-No synonym/alias expansion in `search()` (a plain "GPCR" won't match "G protein-coupled receptor") — `scigantic-empiar`'s query expansion is the template once this has real query traffic to tune against. No walk of every run per dataset (see the fill-rate table above); if you need every run's metadata for a specific dataset of interest, use `CryoetClient.runs()` plus the official `cryoet-data-portal` client.
+No synonym/alias expansion in `search()` (a plain "GPCR" won't match "G protein-coupled receptor"); `scigantic-empiar`'s query expansion is the template once this has real query traffic to tune against. No walk of every run per dataset (see the fill-rate table above); if you need every run's metadata for a specific dataset of interest, use `CryoetClient.runs()` plus the official `cryoet-data-portal` client.

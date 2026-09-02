@@ -4,7 +4,7 @@ Deliberately simple for v0.1: case-insensitive token overlap across the
 fields a structural biologist actually searches on, no synonym expansion.
 scigantic-empiar's `expand_query`/`match_score` (alias tables for "GPCR",
 "cryoET", etc.) is the natural next step once this catalog has real query
-traffic to tune against -- guessing synonyms ahead of usage risks the same
+traffic to tune against; guessing synonyms ahead of usage risks the same
 trap the search team has hit before: an untested expansion can silently
 hurt ranking as easily as help it.
 """

@@ -1,4 +1,4 @@
-"""_search.py -- scoring and filters, pure functions."""
+"""_search.py: scoring and filters, pure functions."""
 from scigantic_cryoet._search import expand_query, match_score, passes_filters
 
 

@@ -1,4 +1,4 @@
-"""catalog.py -- CryoetClient (no network, monkeypatched requests.Session.get)."""
+"""catalog.py: CryoetClient (no network, monkeypatched requests.Session.get)."""
 import scigantic_cryoet as sc
 from scigantic_cryoet.catalog import CryoetClient
 

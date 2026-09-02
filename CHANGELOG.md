@@ -8,6 +8,6 @@ versus sampled from one run), `CryoetClient` (live `dataset_metadata.json`
 and run-listing reads against the portal's public bucket, anonymous, no
 credentials).
 
-The catalog index itself is not yet published — `CryoetCatalog()` points at
+The catalog index itself is not yet published. `CryoetCatalog()` points at
 where the monorepo's onboarding batch job will land it; pass a local file
 meanwhile. See README.

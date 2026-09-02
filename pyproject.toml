@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "scigantic-cryoet"
 version = "0.1.0"
-description = "Search the CZ CryoET Data Portal from Python -- a catalog and search layer over ~370 public cryo-electron tomography datasets, none of which the portal itself indexes."
+description = "Search the CZ CryoET Data Portal from Python: a catalog and search layer over ~370 public cryo-electron tomography datasets, none of which the portal itself indexes."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT-0" }
