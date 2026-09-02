@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scigantic-cryoet"
+version = "0.1.0"
+description = "Search the CZ CryoET Data Portal from Python -- a catalog and search layer over ~370 public cryo-electron tomography datasets, none of which the portal itself indexes."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT-0" }
+authors = [{ name = "Scigantic" }]
+keywords = ["cryo-et", "cryo-em", "cryoet-data-portal", "structural-biology", "tomography", "microscopy"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT No Attribution License (MIT-0)",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+
+dependencies = [
+  # Upper bounds checked live against each package's current PyPI major
+  # (requests 2.x, pandas 2.x as of 2026-09) on 2026-09-02; defensive
+  # ceilings, not a response to a known break in either's next major.
+  "requests>=2.28,<3",
+  "pandas>=1.5,<4",
+]
+
+[project.optional-dependencies]
+viz = ["ipython"]
+dev = ["pytest>=7", "mypy>=1.10", "types-requests", "pandas-stubs"]
+
+[project.urls]
+Homepage = "https://scigantic.com"
+Repository = "https://github.com/Scigantic/scigantic-cryoet"
+Issues = "https://github.com/Scigantic/scigantic-cryoet/issues"
+"CryoET Data Portal" = "https://cryoetdataportal.czscience.com/"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+scigantic_cryoet = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.mypy]
+strict = true
