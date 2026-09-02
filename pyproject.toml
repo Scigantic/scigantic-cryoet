@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scigantic-cryoet"
-version = "0.1.1"
+version = "0.1.2"
 description = "Search the CZ CryoET Data Portal from Python: a catalog and search layer over ~370 public cryo-electron tomography datasets, none of which the portal itself indexes."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -34,7 +34,10 @@ dependencies = [
 
 [project.optional-dependencies]
 viz = ["ipython"]
-dev = ["pytest>=7", "mypy>=1.10", "types-requests", "pandas-stubs"]
+# Only needed for with_emdb()/with_empiar(), the cross-archive join. Every
+# other function in this package works without either sibling installed.
+bridge = ["scigantic-empiar>=0.4.1,<1", "scigantic-emdb>=0.4.3,<1"]
+dev = ["pytest>=7", "mypy>=1.10", "types-requests", "pandas-stubs", "scigantic-empiar>=0.4.1,<1", "scigantic-emdb>=0.4.3,<1"]
 
 [project.urls]
 Homepage = "https://scigantic.com"

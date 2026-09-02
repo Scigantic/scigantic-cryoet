@@ -49,6 +49,28 @@ _session.headers.update(_UA)
 _S3_NS = "{http://s3.amazonaws.com/doc/2006-03-01/}"
 
 
+def _as_list(v: Any) -> list[Any]:
+    """NaN-safe list coercion for a DataFrame cell that should hold a list.
+
+    `v or []` is wrong here: a missing cell reads back as NaN, NaN is truthy,
+    and the caller then iterates a float. Returns [] for missing, wraps a bare
+    scalar, and passes a real list through. Same trap and fix as
+    scigantic-emdb's own `_coerce._as_list`.
+    """
+    if v is None or (isinstance(v, float) and v != v):
+        return []
+    if isinstance(v, (list, tuple, set)):
+        return [x for x in v if x is not None and x == x]
+    return [v]
+
+
+def _empiar_acc(entry_id: Any) -> str:
+    """'EMPIAR-10988' / '10988' / '010988' -> '10988', matching the bare,
+    unpadded digit string `EmpiarCatalog`'s own `id` column uses."""
+    s = str(entry_id).strip().upper().replace("EMPIAR-", "")
+    return s.lstrip("0") or "0"
+
+
 class CryoetClient:
     """Live per-dataset metadata, straight from the portal's own bucket.
 
@@ -188,6 +210,87 @@ class CryoetCatalog:
                      "thumbnail_url"]
         cols = [c for c in preferred if c in out.columns]
         return out[cols + [c for c in out.columns if c not in cols]]
+
+    def with_emdb(self, df: pd.DataFrame | None = None, limit: int | None = None) -> pd.DataFrame:
+        """Join CryoET hits to the EMDB structures they cite.
+
+        Needs `scigantic-emdb` installed (`pip install scigantic-cryoet[bridge]`),
+        raises RuntimeError otherwise rather than returning an empty result that
+        would look like "no cross-references" instead of "dependency missing".
+
+        A dataset's own `emdb_ids` are already COMPLETE on the row (from its
+        `dataset_metadata.json` cross-references), so this looks each one up
+        directly in the EMDB catalog rather than building a reverse index the
+        way `EmdbCatalog.with_empiar()` has to (there, the join key lives on
+        the EMPIAR side, not the EMDB side).
+        """
+        try:
+            from scigantic_emdb import EmdbCatalog, acc  # type: ignore[import-untyped]
+        except Exception as exc:
+            raise RuntimeError(f"scigantic_emdb unavailable: {exc}") from exc
+        rows = self.search(limit=None) if df is None else df
+        if rows is None or len(rows) == 0:
+            return pd.DataFrame()
+        if limit:
+            rows = rows.head(limit)
+        emdb = EmdbCatalog().load()
+        if emdb.empty:
+            return pd.DataFrame()
+        by_id = {acc(r["id"]): r for r in emdb.to_dict("records") if r.get("id") is not None}
+        out = []
+        for r in rows.to_dict("records"):
+            for eid in _as_list(r.get("emdb_ids")):
+                src = by_id.get(acc(eid))
+                if src is None:
+                    continue
+                out.append({
+                    "cryoet_id": r.get("id"),
+                    "title": r.get("title"),
+                    "organism": r.get("organism"),
+                    "emdb_id": src.get("id"),
+                    "resolution_a": src.get("resolution_a"),
+                    "emdb_title": src.get("title"),
+                })
+        return pd.DataFrame(out)
+
+    def with_empiar(self, df: pd.DataFrame | None = None, limit: int | None = None) -> pd.DataFrame:
+        """Join CryoET hits to the raw EMPIAR movies/micrographs behind them.
+
+        Same shape as `with_emdb()`: needs `scigantic-empiar` installed, and
+        looks the dataset's own COMPLETE `empiar_ids` up directly rather than
+        building a reverse index. EMPIAR ids carry no leading zeros and no
+        `EMPIAR-` prefix in `EmpiarCatalog`, unlike the portal's own
+        cross-reference strings (`EMPIAR-10988`), so both sides are
+        normalised the same way before matching.
+        """
+        try:
+            from scigantic_empiar import EmpiarCatalog  # type: ignore[import-untyped]
+        except Exception as exc:
+            raise RuntimeError(f"scigantic_empiar unavailable: {exc}") from exc
+        rows = self.search(limit=None) if df is None else df
+        if rows is None or len(rows) == 0:
+            return pd.DataFrame()
+        if limit:
+            rows = rows.head(limit)
+        emp = EmpiarCatalog().load()
+        if emp.empty:
+            return pd.DataFrame()
+        by_id = {_empiar_acc(r["id"]): r for r in emp.to_dict("records") if r.get("id") is not None}
+        out = []
+        for r in rows.to_dict("records"):
+            for eid in _as_list(r.get("empiar_ids")):
+                src = by_id.get(_empiar_acc(eid))
+                if src is None:
+                    continue
+                out.append({
+                    "cryoet_id": r.get("id"),
+                    "title": r.get("title"),
+                    "organism": r.get("organism"),
+                    "empiar_id": src.get("id"),
+                    "raw_size_gb": src.get("size_gb"),
+                    "raw_method": src.get("method"),
+                })
+        return pd.DataFrame(out)
 
     def gallery(self, df: pd.DataFrame | None = None, cols: int = 4) -> Any:
         """HTML gallery using the portal's own thumbnail.gif per dataset."""

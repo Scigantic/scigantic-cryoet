@@ -62,6 +62,21 @@ cat = cryoet.CryoetCatalog(url="/path/to/cryoet-catalog.json")
 # or: export SCIGANTIC_CRYOET_CATALOG=/path/to/cryoet-catalog.json
 ```
 
+## Cross-referencing EMDB and EMPIAR
+
+Many CryoET Data Portal datasets cite an EMDB structure or an EMPIAR raw-data deposit in their own cross-references. `with_emdb()`/`with_empiar()` join on those ids directly, no separate download or lookup table:
+
+```console
+$ pip install "scigantic-cryoet[bridge]"   # pulls in scigantic-emdb / scigantic-empiar
+```
+
+```python
+cat.with_emdb()      # every (dataset, EMDB structure, resolution) pair the portal cites
+cat.with_empiar()    # every (dataset, EMPIAR raw deposit, size, method) pair
+```
+
+Measured against the full portal, 2026-09-02: 160 dataset-to-EMDB pairs across 45 datasets, 27 dataset-to-EMPIAR pairs across 24 datasets. Both raise `RuntimeError` if the sibling package isn't installed, rather than returning an empty (and misleadingly "no cross-references") result.
+
 ## Live reads
 
 `CryoetClient` hits the portal's bucket directly, for a dataset newer than whatever snapshot is loaded, or to double-check a stale field:

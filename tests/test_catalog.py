@@ -1,8 +1,12 @@
 """catalog.py: CryoetCatalog (no network)."""
+import sys
+import types
+
 import pandas as pd
 import pytest
 
 import scigantic_cryoet as sc
+from scigantic_cryoet.catalog import _as_list, _empiar_acc
 
 
 def _catalog():
@@ -103,3 +107,70 @@ def test_load_http_raises_on_failure(monkeypatch):
     monkeypatch.setattr(sc.catalog._session, "get", _boom)
     with pytest.raises(requests.exceptions.ConnectionError):
         sc.CryoetCatalog().load()
+
+
+def test_as_list_nan_safe():
+    assert _as_list(None) == []
+    assert _as_list(float("nan")) == []
+    assert _as_list("EMD-1234") == ["EMD-1234"]
+    assert _as_list(["EMD-1", "EMD-2"]) == ["EMD-1", "EMD-2"]
+
+
+def test_empiar_acc_normalises():
+    assert _empiar_acc("EMPIAR-10988") == "10988"
+    assert _empiar_acc("10988") == "10988"
+    assert _empiar_acc("010988") == "10988"
+
+
+def _fake_emdb_module():
+    class _FakeEmdbCatalog:
+        def load(self):
+            return pd.DataFrame([
+                {"id": "EMD-1234", "title": "Some structure", "resolution_a": 3.2},
+                {"id": "EMD-5678", "title": "Unrelated structure", "resolution_a": 4.1},
+            ])
+    return types.SimpleNamespace(EmdbCatalog=_FakeEmdbCatalog, acc=lambda x: str(x).upper())
+
+
+def _fake_empiar_module():
+    class _FakeEmpiarCatalog:
+        def load(self):
+            return pd.DataFrame([
+                {"id": "11123", "size_gb": 12.5, "method": "tomography"},
+            ])
+    return types.SimpleNamespace(EmpiarCatalog=_FakeEmpiarCatalog)
+
+
+def test_with_emdb_joins(monkeypatch):
+    monkeypatch.setitem(sys.modules, "scigantic_emdb", _fake_emdb_module())
+    out = _catalog().with_emdb()
+    assert list(out["cryoet_id"]) == [10000]
+    assert out.iloc[0]["emdb_id"] == "EMD-1234"
+    assert out.iloc[0]["resolution_a"] == 3.2
+
+
+def test_with_emdb_no_matches_is_empty(monkeypatch):
+    monkeypatch.setitem(sys.modules, "scigantic_emdb", _fake_emdb_module())
+    cat = _catalog()
+    cat._df = cat._df[cat._df["id"] != 10000]  # drop the only row with an emdb_id
+    assert cat.with_emdb().empty
+
+
+def test_with_emdb_unavailable_raises(monkeypatch):
+    monkeypatch.setitem(sys.modules, "scigantic_emdb", None)
+    with pytest.raises(RuntimeError, match="scigantic_emdb"):
+        _catalog().with_emdb()
+
+
+def test_with_empiar_joins(monkeypatch):
+    monkeypatch.setitem(sys.modules, "scigantic_empiar", _fake_empiar_module())
+    out = _catalog().with_empiar()
+    assert list(out["cryoet_id"]) == [10301]
+    assert out.iloc[0]["empiar_id"] == "11123"
+    assert out.iloc[0]["raw_method"] == "tomography"
+
+
+def test_with_empiar_unavailable_raises(monkeypatch):
+    monkeypatch.setitem(sys.modules, "scigantic_empiar", None)
+    with pytest.raises(RuntimeError, match="scigantic_empiar"):
+        _catalog().with_empiar()
