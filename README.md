@@ -55,7 +55,7 @@ cat.search(has_emdb=True, sort="runs")   # datasets cross-referenced to EMDB, mo
 cat.gallery(cat.search("spike"))         # HTML gallery, portal thumbnails
 ```
 
-The index isn't published yet. `CryoetCatalog()` with no argument points at where the monorepo's onboarding batch job will land it. Until then, point it at a local file built with the catalog script:
+`CryoetCatalog()` with no argument loads the published index directly, no setup needed. To develop against a fresher build (or before a new portal dataset has been re-indexed), point it at a local file instead:
 
 ```python
 cat = cryoet.CryoetCatalog(url="/path/to/cryoet-catalog.json")

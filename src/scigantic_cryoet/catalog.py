@@ -32,14 +32,13 @@ __all__ = ["CryoetCatalog", "CryoetClient"]
 BUCKET = "cryoet-data-portal-public"
 ENDPOINT = f"https://{BUCKET}.s3.amazonaws.com"
 
-# Not live yet: this points at where the monorepo's onboarding batch job will
-# publish the built index, same rollout order scigantic-empiar and
-# scigantic-emdb followed (library ships, then the catalog lands). Until then
-# CryoetCatalog.load() 404s. Point SCIGANTIC_CRYOET_CATALOG at a local
-# `cryoet_build_catalog.py --out` file to develop against real data meanwhile.
+# Published 2026-09-02 by the monorepo's cryoet_build_catalog.py, same
+# rollout order scigantic-empiar and scigantic-emdb followed (library ships,
+# then the catalog lands). Lives in the same public bucket as EMPIAR/EMDB's
+# own catalogs (its name predates all three; it is not EMPIAR-only).
 CATALOG_URL = os.environ.get(
     "SCIGANTIC_CRYOET_CATALOG",
-    "https://scigantic-cryoet-catalog.s3.amazonaws.com/catalog.json",
+    "https://scigantic-empiar-catalog.s3.amazonaws.com/cryoet-catalog.json",
 )
 
 _UA = {"User-Agent": "Scigantic-cryoet/0.1 (+https://scigantic.com; mailto:support@scigantic.com)"}

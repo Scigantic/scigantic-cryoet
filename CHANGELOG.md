@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.3
+
+The catalog is published. `CATALOG_URL` now points at
+`s3://scigantic-empiar-catalog/cryoet-catalog.json` (370 entries, built
+2026-09-02), the same public bucket EMPIAR's and EMDB's own catalogs
+already live in. `CryoetCatalog()` with no argument works with no setup.
+
 ## 0.1.2
 
 Adds `CryoetCatalog.with_emdb()`/`with_empiar()`: join CryoET Data Portal
