@@ -44,6 +44,7 @@ Homepage = "https://scigantic.com"
 Repository = "https://github.com/Scigantic/scigantic-cryoet"
 Issues = "https://github.com/Scigantic/scigantic-cryoet/issues"
 "CryoET Data Portal" = "https://cryoetdataportal.czscience.com/"
+Documentation = "https://github.com/Scigantic/scigantic-cryoet#readme"
 
 [tool.setuptools.packages.find]
 where = ["src"]
