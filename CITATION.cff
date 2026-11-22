@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+title: scigantic-cryoet
+abstract: "Search the CZ CryoET Data Portal from Python: a catalog and search layer over about 370 public cryo-electron tomography datasets."
+authors:
+  - name: Scigantic
+    website: https://scigantic.com
+repository-code: https://github.com/Scigantic/scigantic-cryoet
+url: https://pypi.org/project/scigantic-cryoet/
+license: MIT-0
+keywords:
+  - "cryo-et"
+  - "cryo-em"
+  - "cryoet-data-portal"
+  - "structural-biology"
+  - "tomography"
+  - "microscopy"
+version: "0.1.3"
+date-released: '2026-09-02'
